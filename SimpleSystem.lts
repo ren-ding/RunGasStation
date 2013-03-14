@@ -1,0 +1,23 @@
+//Simple system
+
+const T = 2			// size of tank
+range A = 1..T		// amount of money or gas
+
+const C = 4			// size of customer
+range CID = 1..C	// customer ID range, start from 1
+
+
+CUSTOMER = CUSTOMER[0],										//CUSTOMER[the amount of gas in the tank]
+CUSTOMER[g:0..T] = ( when(g > 0) drives -> CUSTOMER[g-1]	//tank is not empty
+				   | when(g != T) pay[a:1..T-g] -> gas[x:A] -> if (x==a) then CUSTOMER[g+x] else ERROR).
+
+CASHIER = ( cs[c:CID].pay[a:A] -> p.start[c][a] -> CASHIER).//customer pay to the cahsier, cashier start the pump
+
+//LOCK = ( acquire-> release -> LOCK ).
+PUMP = ( start[c:CID][a:A] -> gas[c][a] ->PUMP).			//pump start and gas to the customer's car
+//PUMP = ( acquire-> start[c:CID][a:A] -> gas[c][a] -> release ->PUMP).
+//||LOCK_PUMP = (PUMP || LOCK). 
+
+GETPUMP = (p.gas[c:CID][g:A] -> cs[c].gas[g] -> GETPUMP).	//connecting two events, pump gas and customer gas
+
+||CUSTOMER_TWO_PUMP_ONE = ( cs[CID]:CUSTOMER || CASHIER || p:PUMP || GETPUMP).
